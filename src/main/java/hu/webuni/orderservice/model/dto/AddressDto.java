@@ -1,5 +1,8 @@
 package hu.webuni.orderservice.model.dto;
 
+import lombok.Data;
+
+@Data
 public class AddressDto {
 
     private Long id;

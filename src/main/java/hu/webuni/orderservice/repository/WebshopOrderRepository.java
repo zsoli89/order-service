@@ -12,4 +12,13 @@ public interface WebshopOrderRepository extends JpaRepository<WebshopOrder, Long
     @EntityGraph(attributePaths = {"orderProducts"})
     @Query("SELECT w FROM WebshopOrder w WHERE w.username=?1")
     List<WebshopOrder> findByUsername(String username);
+
+    @EntityGraph(attributePaths = {"address"})
+    @Query("SELECT w FROM WebshopOrder w")
+    List<WebshopOrder> findAllWithAddress();
+
+    @EntityGraph(attributePaths = {"orderProducts"})
+    @Query("SELECT w FROM WebshopOrder w WHERE w.id IN :ids")
+    List<WebshopOrder> findByIdWithProducts(List<Long> ids);
+
 }

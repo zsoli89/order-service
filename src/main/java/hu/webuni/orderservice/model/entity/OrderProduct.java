@@ -23,6 +23,14 @@ public class OrderProduct {
     private WebshopOrder orderId;
     private Long productId;
     private Long quantity;
-    private Double price;
     private Long amount;
+
+    private Double price;
+    private String brand;
+    private String productName;
+    private Long productPcsQuantity;
+    private Long size;
+    private String amountUnits;
+    private String description;
+    private String color;
 }

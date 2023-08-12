@@ -22,9 +22,9 @@ public class InitDbService {
 
     @Transactional
     public void deleteDb() {
-        addressRepository.deleteAllInBatch();
         orderProductRepository.deleteAllInBatch();
         webshopOrderRepository.deleteAllInBatch();
+        addressRepository.deleteAllInBatch();
     }
 
     @Transactional

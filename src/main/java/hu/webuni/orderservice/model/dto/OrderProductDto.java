@@ -1,9 +1,9 @@
 package hu.webuni.orderservice.model.dto;
 
 import hu.webuni.orderservice.model.entity.WebshopOrder;
+import lombok.Data;
 
-import java.util.List;
-
+@Data
 public class OrderProductDto {
 
     private Long id;
@@ -12,6 +12,13 @@ public class OrderProductDto {
     private Long quantity;
     private Double price;
     private Long amount;
-    private List<ProductDto> productDtoList;
+
+    private String brand;
+    private String name;
+    private Long productPcsQuantity;
+    private Long size;
+    private String amountUnits;
+    private String description;
+    private String color;
 
 }

@@ -19,7 +19,7 @@ public class WebshopOrder {
     @GeneratedValue
     @EqualsAndHashCode.Include()
     private Long id;
-    @OneToOne
+    @ManyToOne
     private Address address;
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
