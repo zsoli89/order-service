@@ -20,9 +20,9 @@ public class OrderProduct {
     @EqualsAndHashCode.Include()
     private Long id;
     @ManyToOne
-    private Order orderId;
+    private WebshopOrder orderId;
     private Long productId;
     private Long quantity;
     private Double price;
-    private Double amount;
+    private Long amount;
 }

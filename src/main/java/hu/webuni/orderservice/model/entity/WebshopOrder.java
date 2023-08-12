@@ -13,7 +13,7 @@ import java.util.Set;
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-public class Order {
+public class WebshopOrder {
 
     @Id
     @GeneratedValue
@@ -21,8 +21,9 @@ public class Order {
     private Long id;
     @OneToOne
     private Address address;
+    @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
+    private String username;
     @OneToMany(mappedBy = "orderId")
     private Set<OrderProduct> orderProducts;
-
 }

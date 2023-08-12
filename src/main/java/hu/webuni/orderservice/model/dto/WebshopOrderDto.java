@@ -6,10 +6,11 @@ import hu.webuni.orderservice.model.enums.OrderStatus;
 
 import java.util.Set;
 
-public class OrderDto {
+public class WebshopOrderDto {
 
     private Long id;
     private Address address;
     private OrderStatus orderStatus;
+    private String username;
     private Set<OrderProduct> orderProducts;
 }
