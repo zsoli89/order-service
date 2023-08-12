@@ -2,8 +2,6 @@ package hu.webuni.orderservice.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hu.webuni.commonlib.dto.ProductIdDto;
-import hu.webuni.orderservice.model.dto.OrderProductDto;
 import hu.webuni.orderservice.model.dto.OrderRequestDto;
 import hu.webuni.orderservice.model.dto.WebshopOrderDto;
 import hu.webuni.orderservice.model.entity.Address;
@@ -39,6 +37,7 @@ public class WebshopOrderService {
     private final WebClientServiceInterface webClientService;
     private final OrderProductService orderProductService;
     private final AddressRepository addressRepository;
+    private final AddressService addressService;
 
     public List<WebshopOrderDto> findByUsername(String username) {
         List<WebshopOrder> webshopOrder = webshopOrderRepository.findAllWithAddress();
@@ -51,9 +50,6 @@ public class WebshopOrderService {
 
 
     public WebshopOrderDto placeOrder(OrderRequestDto orderRequestDto) throws JsonProcessingException {
-//        List<Long> productIdList = (List<Long>) orderRequestDto.getProducts().keySet();
-//        List<Long> quantityList = orderRequestDto.getProducts().values().stream().toList();
-//        ProductIdDto productIdDto = new ProductIdDto(productIdList, quantityList);
         String webClientBody = objectMapper.writeValueAsString(orderRequestDto);
         String jsonResponse = webClientService
                 .callPostMicroserviceGetString("8080", "api/warehouse/get-current-product-quantity", webClientBody);
@@ -73,18 +69,26 @@ public class WebshopOrderService {
 
     @Transactional
     public WebshopOrderDto createOrder(Long addressId, String webClientBody) {
-        Optional<Address> address = addressRepository.findById(addressId);
-        if (address.isEmpty()) {
-            logger.error("Couldn't find address - by id: {} -, to place an order", addressId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        Address address = addressService.findById(addressId);
         WebshopOrder order = webshopOrderRepository.save(WebshopOrder.builder()
-                .address(address.get())
+                .address(address)
                 .orderStatus(OrderStatus.PENDING)
                 .username(MDC.get("username"))
                 .build());
+        List<OrderProduct> orderProductList = getOrderProductList(order, webClientBody);
+
+        orderProductService.createAll(orderProductList);
+        logger.info("EveryThing saved in repository.");
+        return null;
+    }
+
+    private List<OrderProduct> getOrderProductList(WebshopOrder order, String webClientBody) {
         String jsonResponse = webClientService
                 .callPostMicroserviceGetString("8080", "api/product/findAll/product-id-list", webClientBody);
+        return createOrderProductListFromJson(jsonResponse, order);
+    }
+
+    private List<OrderProduct> createOrderProductListFromJson(String jsonResponse, WebshopOrder order) {
         JSONArray jsonArray = new JSONArray(jsonResponse);
         JSONObject jsonObject;
         List<OrderProduct> orderProductList = new ArrayList<>();
@@ -115,8 +119,7 @@ public class WebshopOrderService {
                     build();
             orderProductList.add(product);
         }
-        orderProductService.createAll(orderProductList);
-        logger.info("EveryThing saved in repository.");
-        return null;
+        return orderProductList;
     }
+
 }
