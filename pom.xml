@@ -16,7 +16,8 @@
     <properties>
         <java.version>17</java.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
-        <commonlib.version>0.0.2-SNAPSHOT</commonlib.version>
+        <commonlib.version>0.0.3-SNAPSHOT</commonlib.version>
+        <webclientlib.version>0.0.1-SNAPSHOT</webclientlib.version>
     </properties>
     <dependencies>
 
@@ -24,6 +25,12 @@
             <groupId>hu.webuni</groupId>
             <artifactId>commonlib</artifactId>
             <version>${commonlib.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>hu.webuni</groupId>
+            <artifactId>webclientlib</artifactId>
+            <version>${webclientlib.version}</version>
         </dependency>
 
         <dependency>
@@ -61,6 +68,7 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>

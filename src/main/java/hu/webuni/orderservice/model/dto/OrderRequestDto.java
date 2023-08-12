@@ -6,4 +6,5 @@ public class OrderRequestDto {
 
     private Long addressId;
     private Map<Long, Long> products;
+
 }
