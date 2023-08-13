@@ -1,6 +1,5 @@
 package hu.webuni.orderservice.model.mapper;
 
-import hu.webuni.orderservice.model.dto.AddressDto;
 import hu.webuni.orderservice.model.dto.OrderProductDto;
 import hu.webuni.orderservice.model.dto.WebshopOrderDto;
 import hu.webuni.orderservice.model.entity.OrderProduct;

@@ -2,8 +2,8 @@ package hu.webuni.orderservice.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hu.webuni.commonlib.dto.OrderDto;
 import hu.webuni.orderservice.model.dto.OrderProductDto;
-import hu.webuni.orderservice.model.dto.OrderDto;
 import hu.webuni.orderservice.model.dto.WebshopOrderDto;
 import hu.webuni.orderservice.model.entity.Address;
 import hu.webuni.orderservice.model.entity.OrderProduct;
@@ -89,9 +89,7 @@ public class WebshopOrderService {
             List<String> productListRequest = getProductListRequest(modifiedOrder);
             Address pickingUpAddress = addressService.findWebshopAdress();
             String pickingUpAddressRequest = getAddressRequest(null, pickingUpAddress);
-//            new OrderXmlWsImplService()
-//                    .getOrderXmlWsImplPort()
-//                    .entrustDeliveryOrder(modifiedOrder.getId(), shippingAddressRequest, productListRequest, pickingUpAddressRequest);
+
             shippingService.entrustDeliveryOrder(modifiedOrder.getId(), shippingAddressRequest, productListRequest, pickingUpAddressRequest);
         }
         return webshopOrderMapper.webshopOrderToDto(modifiedOrder);
