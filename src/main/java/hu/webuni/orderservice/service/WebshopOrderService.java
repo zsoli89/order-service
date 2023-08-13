@@ -9,7 +9,6 @@ import hu.webuni.orderservice.model.entity.OrderProduct;
 import hu.webuni.orderservice.model.entity.WebshopOrder;
 import hu.webuni.orderservice.model.enums.OrderStatus;
 import hu.webuni.orderservice.model.mapper.WebshopOrderMapper;
-import hu.webuni.orderservice.repository.AddressRepository;
 import hu.webuni.orderservice.repository.WebshopOrderRepository;
 import hu.webuni.webclientservice.WebClientServiceInterface;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -36,9 +37,9 @@ public class WebshopOrderService {
     private final WebshopOrderMapper webshopOrderMapper;
     private final WebClientServiceInterface webClientService;
     private final OrderProductService orderProductService;
-    private final AddressRepository addressRepository;
     private final AddressService addressService;
 
+    @Transactional
     public List<WebshopOrderDto> findByUsername(String username) {
         List<WebshopOrder> webshopOrder = webshopOrderRepository.findAllWithAddress();
         List<Long> idList = webshopOrder.stream().map(WebshopOrder::getId).toList();
@@ -48,7 +49,7 @@ public class WebshopOrderService {
         return webshopOrderMapper.webshopOrderListToDtoList(webshopOrder);
     }
 
-
+    @Transactional
     public WebshopOrderDto placeOrder(OrderRequestDto orderRequestDto) throws JsonProcessingException {
         String webClientBody = objectMapper.writeValueAsString(orderRequestDto);
         String jsonResponse = webClientService
@@ -63,11 +64,9 @@ public class WebshopOrderService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         if (map.containsValue(0L))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        createOrder(orderRequestDto.getAddressId(), webClientBody);
-        return null;
+        return createOrder(orderRequestDto.getAddressId(), webClientBody);
     }
 
-    @Transactional
     public WebshopOrderDto createOrder(Long addressId, String webClientBody) {
         Address address = addressService.findById(addressId);
         WebshopOrder order = webshopOrderRepository.save(WebshopOrder.builder()
@@ -75,14 +74,14 @@ public class WebshopOrderService {
                 .orderStatus(OrderStatus.PENDING)
                 .username(MDC.get("username"))
                 .build());
-        List<OrderProduct> orderProductList = getOrderProductList(order, webClientBody);
+        List<OrderProduct> orderProductList = getDataToCreateOrderProducts(order, webClientBody);
 
         orderProductService.createAll(orderProductList);
-        logger.info("EveryThing saved in repository.");
-        return null;
+        logger.info("Order and Order Products saved in repository.");
+        return webshopOrderMapper.entityToDto(order);
     }
 
-    private List<OrderProduct> getOrderProductList(WebshopOrder order, String webClientBody) {
+    private List<OrderProduct> getDataToCreateOrderProducts(WebshopOrder order, String webClientBody) {
         String jsonResponse = webClientService
                 .callPostMicroserviceGetString("8080", "api/product/findAll/product-id-list", webClientBody);
         return createOrderProductListFromJson(jsonResponse, order);
@@ -90,6 +89,7 @@ public class WebshopOrderService {
 
     private List<OrderProduct> createOrderProductListFromJson(String jsonResponse, WebshopOrder order) {
         JSONArray jsonArray = new JSONArray(jsonResponse);
+        logger.info("Order Product Json Array list size: {}", jsonArray.length());
         JSONObject jsonObject;
         List<OrderProduct> orderProductList = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
