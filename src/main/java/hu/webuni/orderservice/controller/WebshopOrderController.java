@@ -3,6 +3,7 @@ package hu.webuni.orderservice.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import hu.webuni.orderservice.model.dto.OrderRequestDto;
 import hu.webuni.orderservice.model.dto.WebshopOrderDto;
+import hu.webuni.orderservice.model.enums.OrderStatus;
 import hu.webuni.orderservice.service.WebshopOrderService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.MDC;
@@ -29,6 +30,12 @@ public class WebshopOrderController {
     public WebshopOrderDto placeOrder(@RequestBody OrderRequestDto orderRequestDto, @PathVariable String username) throws JsonProcessingException {
         MDC.put("username", username);
         return webshopOrderService.placeOrder(orderRequestDto);
+    }
+
+    @GetMapping("/order/change-status/{id}/{status}")
+    @ResponseStatus(HttpStatus.OK)
+    public WebshopOrderDto changeOrderStatus(@PathVariable Long id, @PathVariable OrderStatus status) {
+        return webshopOrderService.changeOrderStatus(id, status);
     }
 
 }

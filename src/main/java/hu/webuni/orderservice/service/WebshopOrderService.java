@@ -25,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -67,7 +68,25 @@ public class WebshopOrderService {
         return createOrder(orderRequestDto.getAddressId(), webClientBody);
     }
 
-    public WebshopOrderDto createOrder(Long addressId, String webClientBody) {
+    @Transactional
+    public WebshopOrderDto changeOrderStatus(Long id, OrderStatus status) {
+        Optional<WebshopOrder> orderOptional = webshopOrderRepository.findById(id);
+        if (orderOptional.isEmpty()) {
+            logger.error("Couldn't found Webshop Order entity by id {}", id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        if (!orderOptional.get().getOrderStatus().equals(OrderStatus.PENDING)) {
+            logger.error("It is forbidden to modify status once It has been modified from PENDING");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        orderOptional.get().setOrderStatus(status);
+        WebshopOrder modifiedOrder = webshopOrderRepository.save(orderOptional.get());
+        if(modifiedOrder.getOrderStatus().equals(OrderStatus.CONFIRMED))
+            return null;
+        return webshopOrderMapper.webshopOrderToDto(modifiedOrder);
+    }
+
+    private WebshopOrderDto createOrder(Long addressId, String webClientBody) {
         Address address = addressService.findById(addressId);
         WebshopOrder order = webshopOrderRepository.save(WebshopOrder.builder()
                 .address(address)

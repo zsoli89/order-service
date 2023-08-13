@@ -17,7 +17,15 @@ public interface WebshopOrderMapper {
 
     WebshopOrder dtoToEntity(WebshopOrderDto dto);
     WebshopOrderDto entityToDto(WebshopOrder entity);
+
     List<WebshopOrderDto> webshopOrderListToDtoList(List<WebshopOrder> webshopOrderList);
+    @IterableMapping(qualifiedByName = "summary")
+    List<WebshopOrderDto> webshopOrderSummariestToDtoList(List<WebshopOrder> webshopOrderList);
+
+    @Named("summary")
+    @Mapping(target = "address", ignore = true)
+    @Mapping(target = "orderProducts", ignore = true)
+    WebshopOrderDto webshopOrderToDto(WebshopOrder entity);
 
     @Mapping(target = "orderId", ignore = true)
     OrderProductDto orderToDto(OrderProduct orderProduct);
