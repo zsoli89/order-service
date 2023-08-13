@@ -32,7 +32,7 @@ public class WebshopOrderController {
         return webshopOrderService.placeOrder(orderRequestDto);
     }
 
-    @GetMapping("/order/change-status/{id}/{status}")
+    @GetMapping("/change-status/{id}/{status}")
     @ResponseStatus(HttpStatus.OK)
     public WebshopOrderDto changeOrderStatus(@PathVariable Long id, @PathVariable OrderStatus status) {
         return webshopOrderService.changeOrderStatus(id, status);

@@ -83,6 +83,18 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
+<!--    jakarta tipusokat fog generalni -->
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-rt</artifactId>
+            <version>4.0.0</version>
+            <scope>runtime</scope>
+        </dependency>
+<!--    ez kell hogy le is forduljon -->
+        <dependency>
+            <groupId>jakarta.xml.ws</groupId>
+            <artifactId>jakarta.xml.ws-api</artifactId>
+        </dependency>
 
     </dependencies>
 
@@ -120,7 +132,24 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
-            </plugin>
+            </plugin><plugin>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-maven-plugin</artifactId>
+            <version>4.0.1</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>wsimport</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <packageName>hu.webuni.orderservice.wsclient</packageName>
+                <wsdlUrls>
+                    <wsdlUrl>http://localhost:8090/services/shipping?wsdl</wsdlUrl>
+                </wsdlUrls>
+            </configuration>
+        </plugin>
         </plugins>
     </build>
 

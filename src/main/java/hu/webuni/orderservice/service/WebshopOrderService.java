@@ -2,14 +2,17 @@ package hu.webuni.orderservice.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hu.webuni.orderservice.model.dto.OrderProductDto;
 import hu.webuni.orderservice.model.dto.OrderRequestDto;
 import hu.webuni.orderservice.model.dto.WebshopOrderDto;
 import hu.webuni.orderservice.model.entity.Address;
 import hu.webuni.orderservice.model.entity.OrderProduct;
 import hu.webuni.orderservice.model.entity.WebshopOrder;
 import hu.webuni.orderservice.model.enums.OrderStatus;
+import hu.webuni.orderservice.model.mapper.OrderProductMapper;
 import hu.webuni.orderservice.model.mapper.WebshopOrderMapper;
 import hu.webuni.orderservice.repository.WebshopOrderRepository;
+import hu.webuni.orderservice.wsclient.OrderXmlWsImplService;
 import hu.webuni.webclientservice.WebClientServiceInterface;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
@@ -22,10 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -39,13 +39,15 @@ public class WebshopOrderService {
     private final WebClientServiceInterface webClientService;
     private final OrderProductService orderProductService;
     private final AddressService addressService;
+    private final OrderProductMapper orderProductMapper;
 
     @Transactional
     public List<WebshopOrderDto> findByUsername(String username) {
         List<WebshopOrder> webshopOrder = webshopOrderRepository.findAllWithAddress();
         List<Long> idList = webshopOrder.stream().map(WebshopOrder::getId).toList();
         webshopOrder = webshopOrderRepository.findByIdWithProducts(idList);
-
+        webshopOrder = webshopOrder.stream()
+                .filter(o -> o.getUsername().equals(username)).toList();
         logger.info("{} Webshop Order entity found by username: {}", webshopOrder.size(), username);
         return webshopOrderMapper.webshopOrderListToDtoList(webshopOrder);
     }
@@ -81,7 +83,20 @@ public class WebshopOrderService {
         }
         orderOptional.get().setOrderStatus(status);
         WebshopOrder modifiedOrder = webshopOrderRepository.save(orderOptional.get());
+        StringBuilder shippingAddress = new StringBuilder();
+        shippingAddress = shippingAddress
+                .append(modifiedOrder.getAddress().getZip()).append(" ")
+                .append(modifiedOrder.getAddress().getCity()).append(" ")
+                .append(modifiedOrder.getAddress().getStreet()).append(" ")
+                .append(modifiedOrder.getAddress().getHouseNumber()).append(" ")
+                .append(modifiedOrder.getAddress().getDoor());
+        List<String> productList = new ArrayList<>();
+        String product;
+//        product = product.concat(modifiedOrder.getOrderProducts())
         if(modifiedOrder.getOrderStatus().equals(OrderStatus.CONFIRMED))
+//            String shippingResponse = new OrderXmlWsImplService()
+//                    .getOrderXmlWsImplPort()
+//                    .entrustDeliveryOrder(modifiedOrder.getId(), modifiedOrder.getAddress().);
             return null;
         return webshopOrderMapper.webshopOrderToDto(modifiedOrder);
     }
@@ -94,8 +109,9 @@ public class WebshopOrderService {
                 .username(MDC.get("username"))
                 .build());
         List<OrderProduct> orderProductList = getDataToCreateOrderProducts(order, webClientBody);
-
-        orderProductService.createAll(orderProductList);
+        List<OrderProductDto> savedProductDtoList = orderProductService.createAll(orderProductList);
+        Set<OrderProduct> orderProductsSet = new HashSet<>(orderProductMapper.dtoSummariesToProductList(savedProductDtoList));
+        order.setOrderProducts(orderProductsSet);
         logger.info("Order and Order Products saved in repository.");
         return webshopOrderMapper.entityToDto(order);
     }

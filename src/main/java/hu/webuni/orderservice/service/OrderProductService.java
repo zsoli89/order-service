@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class OrderProductService {
     private final OrderProductRepository orderProductRepository;
     private final OrderProductMapper orderProductMapper;
 
+    @Transactional
     public List<OrderProductDto> createAll(List<OrderProduct> orderProductList) {
         orderProductList.forEach(o -> {
             Long amount = (long) (o.getPrice() * o.getQuantity());
