@@ -12,4 +12,5 @@ public class AddressDto {
     private String houseNumber;
     private String floor;
     private String door;
+    private String webshopAddress;
 }

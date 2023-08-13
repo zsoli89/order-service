@@ -29,9 +29,10 @@ public class InitDbService {
 
     @Transactional
     public void addInitData() {
-        Address address1 = createAddress("4400", "Nyíregyháza", "Kossuth", "5", "2", "1B");
-        Address address2 = createAddress("1152", "Budapest", "Báthory", "5", "2", "1B");
-        Address address3 = createAddress("3000", "Hatvan", "Kertész", "32", null, null);
+        Address address1 = createAddress("4400", "Nyíregyháza", "Kossuth", "5", "2", "1B", "BOOLEAN_FALSE");
+        Address address2 = createAddress("1152", "Budapest", "Báthory", "5", "2", "1B", "BOOLEAN_FALSE");
+        Address address3 = createAddress("3000", "Hatvan", "Kertész", "32", null, null, "BOOLEAN_FALSE");
+        createAddress("4400", "Nyíregyháza", "Kossuth", "5", "2", "1B", "BOOLEAN_TRUE");
 
         WebshopOrder order1 = createOrder(address1, OrderStatus.PENDING, "jakab.zoltan");
         WebshopOrder order2 = createOrder(address1, OrderStatus.CONFIRMED, "jakab.zoltan");
@@ -62,7 +63,7 @@ public class InitDbService {
 
     }
 
-    private Address createAddress(String zip, String city, String street, String houseNr, String floor, String door) {
+    private Address createAddress(String zip, String city, String street, String houseNr, String floor, String door, String isWebshop) {
         return addressRepository.save(
                 Address.builder()
                         .zip(zip)
@@ -71,6 +72,7 @@ public class InitDbService {
                         .houseNumber(houseNr)
                         .floor(floor)
                         .door(door)
+                        .webshopAddress(isWebshop)
                         .build()
         );
     }

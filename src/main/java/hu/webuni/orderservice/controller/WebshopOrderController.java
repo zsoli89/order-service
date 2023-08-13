@@ -1,7 +1,7 @@
 package hu.webuni.orderservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import hu.webuni.orderservice.model.dto.OrderRequestDto;
+import hu.webuni.orderservice.model.dto.OrderDto;
 import hu.webuni.orderservice.model.dto.WebshopOrderDto;
 import hu.webuni.orderservice.model.enums.OrderStatus;
 import hu.webuni.orderservice.service.WebshopOrderService;
@@ -27,9 +27,9 @@ public class WebshopOrderController {
 
     @PostMapping("/place-order/{username}")
     @ResponseStatus(HttpStatus.OK)
-    public WebshopOrderDto placeOrder(@RequestBody OrderRequestDto orderRequestDto, @PathVariable String username) throws JsonProcessingException {
+    public WebshopOrderDto placeOrder(@RequestBody OrderDto orderDto, @PathVariable String username) throws JsonProcessingException {
         MDC.put("username", username);
-        return webshopOrderService.placeOrder(orderRequestDto);
+        return webshopOrderService.placeOrder(orderDto);
     }
 
     @GetMapping("/change-status/{id}/{status}")

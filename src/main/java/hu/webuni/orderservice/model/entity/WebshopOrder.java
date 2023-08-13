@@ -26,4 +26,5 @@ public class WebshopOrder {
     private String username;
     @OneToMany(mappedBy = "orderId")
     private Set<OrderProduct> orderProducts;
+    private String shippingId;
 }

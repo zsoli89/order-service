@@ -3,7 +3,7 @@ package hu.webuni.orderservice.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hu.webuni.orderservice.model.dto.OrderProductDto;
-import hu.webuni.orderservice.model.dto.OrderRequestDto;
+import hu.webuni.orderservice.model.dto.OrderDto;
 import hu.webuni.orderservice.model.dto.WebshopOrderDto;
 import hu.webuni.orderservice.model.entity.Address;
 import hu.webuni.orderservice.model.entity.OrderProduct;
@@ -12,7 +12,6 @@ import hu.webuni.orderservice.model.enums.OrderStatus;
 import hu.webuni.orderservice.model.mapper.OrderProductMapper;
 import hu.webuni.orderservice.model.mapper.WebshopOrderMapper;
 import hu.webuni.orderservice.repository.WebshopOrderRepository;
-import hu.webuni.orderservice.wsclient.OrderXmlWsImplService;
 import hu.webuni.webclientservice.WebClientServiceInterface;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
@@ -40,6 +39,7 @@ public class WebshopOrderService {
     private final OrderProductService orderProductService;
     private final AddressService addressService;
     private final OrderProductMapper orderProductMapper;
+    private final ShippingService shippingService;
 
     @Transactional
     public List<WebshopOrderDto> findByUsername(String username) {
@@ -53,8 +53,8 @@ public class WebshopOrderService {
     }
 
     @Transactional
-    public WebshopOrderDto placeOrder(OrderRequestDto orderRequestDto) throws JsonProcessingException {
-        String webClientBody = objectMapper.writeValueAsString(orderRequestDto);
+    public WebshopOrderDto placeOrder(OrderDto orderDto) throws JsonProcessingException {
+        String webClientBody = objectMapper.writeValueAsString(orderDto);
         String jsonResponse = webClientService
                 .callPostMicroserviceGetString("8080", "api/warehouse/get-current-product-quantity", webClientBody);
         JSONObject jsonObject = new JSONObject(jsonResponse);
@@ -63,11 +63,11 @@ public class WebshopOrderService {
 
         if (productPerQuantityString.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        if (map.size() != orderRequestDto.getProducts().size())
+        if (map.size() != orderDto.getProducts().size())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         if (map.containsValue(0L))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        return createOrder(orderRequestDto.getAddressId(), webClientBody);
+        return createOrder(orderDto.getAddressId(), webClientBody);
     }
 
     @Transactional
@@ -83,23 +83,20 @@ public class WebshopOrderService {
         }
         orderOptional.get().setOrderStatus(status);
         WebshopOrder modifiedOrder = webshopOrderRepository.save(orderOptional.get());
-        StringBuilder shippingAddress = new StringBuilder();
-        shippingAddress = shippingAddress
-                .append(modifiedOrder.getAddress().getZip()).append(" ")
-                .append(modifiedOrder.getAddress().getCity()).append(" ")
-                .append(modifiedOrder.getAddress().getStreet()).append(" ")
-                .append(modifiedOrder.getAddress().getHouseNumber()).append(" ")
-                .append(modifiedOrder.getAddress().getDoor());
-        List<String> productList = new ArrayList<>();
-        String product;
-//        product = product.concat(modifiedOrder.getOrderProducts())
-        if(modifiedOrder.getOrderStatus().equals(OrderStatus.CONFIRMED))
-//            String shippingResponse = new OrderXmlWsImplService()
+
+        if (modifiedOrder.getOrderStatus().equals(OrderStatus.CONFIRMED)) {
+            String shippingAddressRequest = getAddressRequest(modifiedOrder, null);
+            List<String> productListRequest = getProductListRequest(modifiedOrder);
+            Address pickingUpAddress = addressService.findWebshopAdress();
+            String pickingUpAddressRequest = getAddressRequest(null, pickingUpAddress);
+//            new OrderXmlWsImplService()
 //                    .getOrderXmlWsImplPort()
-//                    .entrustDeliveryOrder(modifiedOrder.getId(), modifiedOrder.getAddress().);
-            return null;
+//                    .entrustDeliveryOrder(modifiedOrder.getId(), shippingAddressRequest, productListRequest, pickingUpAddressRequest);
+            shippingService.entrustDeliveryOrder(modifiedOrder.getId(), shippingAddressRequest, productListRequest, pickingUpAddressRequest);
+        }
         return webshopOrderMapper.webshopOrderToDto(modifiedOrder);
     }
+
 
     private WebshopOrderDto createOrder(Long addressId, String webClientBody) {
         Address address = addressService.findById(addressId);
@@ -115,6 +112,7 @@ public class WebshopOrderService {
         logger.info("Order and Order Products saved in repository.");
         return webshopOrderMapper.entityToDto(order);
     }
+
 
     private List<OrderProduct> getDataToCreateOrderProducts(WebshopOrder order, String webClientBody) {
         String jsonResponse = webClientService
@@ -157,4 +155,62 @@ public class WebshopOrderService {
         return orderProductList;
     }
 
+    private String getAddressRequest(WebshopOrder order, Address address) {
+        StringBuilder shippingAddress = new StringBuilder();
+        if (order != null) {
+            shippingAddress
+                    .append(order.getAddress().getZip()).append(" ")
+                    .append(order.getAddress().getCity()).append(" ")
+                    .append(order.getAddress().getStreet()).append(" ")
+                    .append(order.getAddress().getHouseNumber()).append(" ")
+                    .append(order.getAddress().getDoor());
+            return shippingAddress.toString();
+        } else {
+            shippingAddress
+                    .append(address.getZip()).append(" ")
+                    .append(address.getCity()).append(" ")
+                    .append(address.getStreet()).append(" ")
+                    .append(address.getHouseNumber()).append(" ")
+                    .append(address.getDoor());
+            return shippingAddress.toString();
+        }
+    }
+
+    private List<String> getProductListRequest(WebshopOrder order) {
+        List<String> productList = new ArrayList<>();
+        for (OrderProduct product : order.getOrderProducts()) {
+            StringBuilder builder = new StringBuilder();
+            builder = builder
+                    .append(product.getOrderId()).append(", ")
+                    .append(product.getProductId()).append(", ")
+                    .append(product.getQuantity()).append(", ")
+                    .append(product.getPrice()).append(", ")
+                    .append(product.getAmount()).append(", ")
+                    .append(product.getBrand()).append(", ")
+                    .append(product.getProductName()).append(", ")
+                    .append(product.getProductPcsQuantity()).append(", ")
+                    .append(product.getSize()).append(", ")
+                    .append(product.getAmountUnits()).append(", ")
+                    .append(product.getColor()).append(", ")
+                    .append(product.getDescription()).append(", ")
+                    .append(product.getOrderId());
+            productList.add(builder.toString());
+        }
+        return productList;
+    }
+
+    public void updateShippingStatus(Long orderId, String status, String shippingId) {
+        Optional<WebshopOrder> orderOptional = webshopOrderRepository.findById(orderId);
+        if (orderOptional.isEmpty()) {
+            logger.error("Couldn't find Webshop Order by id {}", orderId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        orderOptional.get().setShippingId(shippingId);
+        switch (status) {
+            case "DELIVERED" -> orderOptional.get().setOrderStatus(OrderStatus.DELIVERED);
+            case "SHIPMENT_FAILED" -> orderOptional.get().setOrderStatus(OrderStatus.SHIPMENT_FAILED);
+            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        webshopOrderRepository.save(orderOptional.get());
+    }
 }

@@ -13,4 +13,6 @@ public class WebshopOrderDto {
     private OrderStatus orderStatus;
     private String username;
     private Set<OrderProductDto> orderProducts;
+    private String shippingId;
+
 }

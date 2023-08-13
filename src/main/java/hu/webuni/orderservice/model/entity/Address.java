@@ -24,5 +24,5 @@ public class Address {
     private String houseNumber;
     private String floor;
     private String door;
-
+    private String webshopAddress;
 }

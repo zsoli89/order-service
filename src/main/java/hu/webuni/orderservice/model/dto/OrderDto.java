@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-public class OrderRequestDto {
+public class OrderDto {
 
     private Long addressId;
     private Map<Long, Long> products;

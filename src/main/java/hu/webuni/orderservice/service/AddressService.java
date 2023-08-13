@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,6 +28,16 @@ public class AddressService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         return address.get();
+    }
+
+    public Address findWebshopAdress() {
+        List<Address> addressByWebshopAddress = addressRepository.findAddressByWebshopAddress();
+        if (addressByWebshopAddress.size() > 1) {
+            logger.error("Database incosistency. Webshop address found with list size: {}", addressByWebshopAddress.size());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        logger.info("Webshop Address entity found with id: {}", addressByWebshopAddress.get(0).getId());
+        return addressByWebshopAddress.get(0);
     }
 
 }
