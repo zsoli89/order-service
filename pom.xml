@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>hu.webuni</groupId>
     <artifactId>order-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.1-SNAPSHOT</version>
     <name>order-service</name>
     <description>order-service</description>
     <properties>
@@ -19,7 +19,22 @@
         <commonlib.version>0.0.7-SNAPSHOT</commonlib.version>
         <webclientlib.version>0.0.2-SNAPSHOT</webclientlib.version>
         <jmslib.version>0.0.1-SNAPSHOT</jmslib.version>
+        <spring-cloud.version>2022.0.4</spring-cloud.version>
+        <securityconfig.version>0.0.2-SNAPSHOT</securityconfig.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
 
         <dependency>
@@ -38,6 +53,22 @@
             <groupId>hu.webuni</groupId>
             <artifactId>jmslib</artifactId>
             <version>${jmslib.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>hu.webuni</groupId>
+            <artifactId>securitylib</artifactId>
+            <version>${securityconfig.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
         <dependency>
