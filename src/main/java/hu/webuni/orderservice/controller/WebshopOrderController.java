@@ -8,6 +8,7 @@ import hu.webuni.orderservice.service.WebshopOrderService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class WebshopOrderController {
 
     private final WebshopOrderService webshopOrderService;
 
+    @PreAuthorize("#username == authentication.name or hasAuthority('admin')")
     @GetMapping("/find/username/{username}")
     @ResponseStatus(HttpStatus.OK)
     public List<WebshopOrderDto> findByUsername(@PathVariable String username) {
