@@ -20,7 +20,7 @@
         <webclientlib.version>0.0.2-SNAPSHOT</webclientlib.version>
         <jmslib.version>0.0.1-SNAPSHOT</jmslib.version>
         <spring-cloud.version>2022.0.4</spring-cloud.version>
-        <securityconfig.version>0.0.2-SNAPSHOT</securityconfig.version>
+<!--        <securityconfig.version>0.0.2-SNAPSHOT</securityconfig.version>-->
     </properties>
 
     <dependencyManagement>
@@ -55,11 +55,11 @@
             <version>${jmslib.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>hu.webuni</groupId>
-            <artifactId>securitylib</artifactId>
-            <version>${securityconfig.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>hu.webuni</groupId>-->
+<!--            <artifactId>securitylib</artifactId>-->
+<!--            <version>${securityconfig.version}</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -141,6 +141,28 @@
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-jakarta-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>4.4.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
     </dependencies>

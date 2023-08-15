@@ -34,8 +34,6 @@ public class JwtTokenService {
     private String redisUserPostfix;
     @Value("${redis.user.refresh.postfix}")
     private String redisUserRefreshPostfix;
-    @Value("${jwt.secret}")
-    private String secret;
     private Algorithm signerAlg;
     private Algorithm validatorAlg;
 

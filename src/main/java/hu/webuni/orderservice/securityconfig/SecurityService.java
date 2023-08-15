@@ -15,7 +15,6 @@ public class SecurityService {
     private static final Logger logger = LoggerFactory.getLogger(SecurityService.class);
     private static final String BEARER = "Bearer ";
     private final JwtTokenService jwtTokenService;
-    private final RedisService redisService;
     @Value("${redis.user.postfix}")
     private String redisUserPostfix;
     @Value("${redis.user.refresh.postfix}")
