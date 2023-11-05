@@ -24,6 +24,11 @@
 
         <dependency>
             <groupId>hu.webuni</groupId>
+            <artifactId>securitylib</artifactId>
+            <version>0.0.8-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>hu.webuni</groupId>
             <artifactId>commonlib</artifactId>
             <version>${commonlib.version}</version>
         </dependency>
