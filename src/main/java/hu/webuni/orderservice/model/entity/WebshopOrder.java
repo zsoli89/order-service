@@ -24,7 +24,7 @@ public class WebshopOrder {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
     private String username;
-    @OneToMany(mappedBy = "orderId")
+    @OneToMany(mappedBy = "orderId", orphanRemoval = true)
     private Set<OrderProduct> orderProducts;
     private String shippingId;
 }

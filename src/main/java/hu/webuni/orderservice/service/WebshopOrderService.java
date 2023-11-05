@@ -72,17 +72,14 @@ public class WebshopOrderService {
 
     @Transactional
     public WebshopOrderDto changeOrderStatus(Long id, OrderStatus status) {
-        Optional<WebshopOrder> orderOptional = webshopOrderRepository.findById(id);
-        if (orderOptional.isEmpty()) {
-            logger.error("Couldn't found Webshop Order entity by id {}", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        if (!orderOptional.get().getOrderStatus().equals(OrderStatus.PENDING)) {
+        WebshopOrder order = webshopOrderRepository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (!order.getOrderStatus().equals(OrderStatus.PENDING)) {
             logger.error("It is forbidden to modify status once It has been modified from PENDING");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        orderOptional.get().setOrderStatus(status);
-        WebshopOrder modifiedOrder = webshopOrderRepository.save(orderOptional.get());
+        order.setOrderStatus(status);
+        WebshopOrder modifiedOrder = webshopOrderRepository.save(order);
 
         if (modifiedOrder.getOrderStatus().equals(OrderStatus.CONFIRMED)) {
             String shippingAddressRequest = getAddressRequest(modifiedOrder, null);
@@ -94,7 +91,6 @@ public class WebshopOrderService {
         }
         return webshopOrderMapper.webshopOrderToDto(modifiedOrder);
     }
-
 
     private WebshopOrderDto createOrder(Long addressId, String webClientBody) {
         Address address = addressService.findById(addressId);
@@ -110,7 +106,6 @@ public class WebshopOrderService {
         logger.info("Order and Order Products saved in repository.");
         return webshopOrderMapper.entityToDto(order);
     }
-
 
     private List<OrderProduct> getDataToCreateOrderProducts(WebshopOrder order, String webClientBody) {
         String jsonResponse = webClientService
@@ -198,17 +193,13 @@ public class WebshopOrderService {
     }
 
     public void updateShippingStatus(Long orderId, String status, String shippingId) {
-        Optional<WebshopOrder> orderOptional = webshopOrderRepository.findById(orderId);
-        if (orderOptional.isEmpty()) {
-            logger.error("Couldn't find Webshop Order by id {}", orderId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        orderOptional.get().setShippingId(shippingId);
+        WebshopOrder order = webshopOrderRepository.findById(orderId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        order.setShippingId(shippingId);
         switch (status) {
-            case "DELIVERED" -> orderOptional.get().setOrderStatus(OrderStatus.DELIVERED);
-            case "SHIPMENT_FAILED" -> orderOptional.get().setOrderStatus(OrderStatus.SHIPMENT_FAILED);
+            case "DELIVERED" -> order.setOrderStatus(OrderStatus.DELIVERED);
+            case "SHIPMENT_FAILED" -> order.setOrderStatus(OrderStatus.SHIPMENT_FAILED);
             default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        webshopOrderRepository.save(orderOptional.get());
+        webshopOrderRepository.save(order);
     }
 }
