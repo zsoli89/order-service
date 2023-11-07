@@ -17,15 +17,16 @@
         <java.version>17</java.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <commonlib.version>0.0.7-SNAPSHOT</commonlib.version>
+        <securitylab.version>0.0.16-SNAPSHOT</securitylab.version>
         <webclientlib.version>0.0.2-SNAPSHOT</webclientlib.version>
         <jmslib.version>0.0.1-SNAPSHOT</jmslib.version>
     </properties>
     <dependencies>
 
         <dependency>
-            <groupId>hu.webuni</groupId>
+            <groupId>hu.thesis</groupId>
             <artifactId>securitylib</artifactId>
-            <version>0.0.8-SNAPSHOT</version>
+            <version>${securitylab.version}</version>
         </dependency>
         <dependency>
             <groupId>hu.webuni</groupId>

@@ -1,6 +1,6 @@
 package hu.webuni.orderservice.service;
 
-import hu.webuni.security.JwtAuthFilter;
+import hu.thesis.security.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

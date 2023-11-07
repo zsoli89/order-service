@@ -1,7 +1,7 @@
 package hu.webuni.orderservice;
 
 import hu.webuni.orderservice.service.InitDbService;
-import hu.webuni.security.JwtAuthFilter;
+import hu.thesis.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
