@@ -17,7 +17,7 @@
         <java.version>17</java.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <commonlib.version>0.0.7-SNAPSHOT</commonlib.version>
-        <securitylab.version>0.0.16-SNAPSHOT</securitylab.version>
+        <securitylib.version>0.0.16-SNAPSHOT</securitylib.version>
         <webclientlib.version>0.0.2-SNAPSHOT</webclientlib.version>
         <jmslib.version>0.0.1-SNAPSHOT</jmslib.version>
     </properties>
@@ -26,7 +26,7 @@
         <dependency>
             <groupId>hu.thesis</groupId>
             <artifactId>securitylib</artifactId>
-            <version>${securitylab.version}</version>
+            <version>${securitylib.version}</version>
         </dependency>
         <dependency>
             <groupId>hu.webuni</groupId>
