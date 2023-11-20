@@ -17,14 +17,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AddressService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AddressService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddressService.class);
 
     private final AddressRepository addressRepository;
 
     public Address findById(Long id) {
         Optional<Address> address = addressRepository.findById(id);
         if (address.isEmpty()) {
-            logger.error("Couldn't find Address entity by id: {}", id);
+            LOGGER.error("Couldn't find Address entity by id: {}", id);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         return address.get();
@@ -32,12 +32,16 @@ public class AddressService {
 
     public Address findWebshopAdress() {
         List<Address> addressByWebshopAddress = addressRepository.findAddressByWebshopAddress();
-        if (addressByWebshopAddress.size() > 1) {
-            logger.error("Database incosistency. Webshop address found with list size: {}", addressByWebshopAddress.size());
+        if (isSizeGreaterThanOne(addressByWebshopAddress)) {
+            LOGGER.error("Database incosistency. Webshop address found with list size: {}", addressByWebshopAddress.size());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        logger.info("Webshop Address entity found with id: {}", addressByWebshopAddress.get(0).getId());
+        LOGGER.info("Webshop Address entity found with id: {}", addressByWebshopAddress.get(0).getId());
         return addressByWebshopAddress.get(0);
+    }
+
+    private static boolean isSizeGreaterThanOne(List<Address> addressByWebshopAddress) {
+        return addressByWebshopAddress.size() > 1;
     }
 
 }
