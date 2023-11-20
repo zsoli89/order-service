@@ -30,7 +30,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class WebshopOrderService {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebshopOrderService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebshopOrderService.class);
     private final ObjectMapper objectMapper;
 
     private final WebshopOrderRepository webshopOrderRepository;
@@ -43,12 +43,12 @@ public class WebshopOrderService {
 
     @Transactional
     public List<WebshopOrderDto> findByUsername(String username) {
-        List<WebshopOrder> webshopOrder = webshopOrderRepository.findAllWithAddress();
+        List<WebshopOrder> webshopOrder = webshopOrderRepository.findAllWithAddress(username);
         List<Long> idList = webshopOrder.stream().map(WebshopOrder::getId).toList();
         webshopOrder = webshopOrderRepository.findByIdWithProducts(idList);
-        webshopOrder = webshopOrder.stream()
-                .filter(o -> o.getUsername().equals(username)).toList();
-        logger.info("{} Webshop Order entity found by username: {}", webshopOrder.size(), username);
+//        webshopOrder = webshopOrder.stream()
+//                .filter(o -> o.getUsername().equals(username)).toList();
+        LOGGER.info("{} Webshop Order entity found by username: {}", webshopOrder.size(), username);
         return webshopOrderMapper.webshopOrderListToDtoList(webshopOrder);
     }
 
@@ -75,7 +75,7 @@ public class WebshopOrderService {
         WebshopOrder order = webshopOrderRepository.findById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND));
         if (!order.getOrderStatus().equals(OrderStatus.PENDING)) {
-            logger.error("It is forbidden to modify status once It has been modified from PENDING");
+            LOGGER.error("It is forbidden to modify status once It has been modified from PENDING");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         order.setOrderStatus(status);
@@ -103,7 +103,7 @@ public class WebshopOrderService {
         List<OrderProductDto> savedProductDtoList = orderProductService.createAll(orderProductList);
         Set<OrderProduct> orderProductsSet = new HashSet<>(orderProductMapper.dtoSummariesToProductList(savedProductDtoList));
         order.setOrderProducts(orderProductsSet);
-        logger.info("Order and Order Products saved in repository.");
+        LOGGER.info("Order and Order Products saved in repository.");
         return webshopOrderMapper.entityToDto(order);
     }
 
@@ -115,7 +115,7 @@ public class WebshopOrderService {
 
     private List<OrderProduct> createOrderProductListFromJson(String jsonResponse, WebshopOrder order) {
         JSONArray jsonArray = new JSONArray(jsonResponse);
-        logger.info("Order Product Json Array list size: {}", jsonArray.length());
+        LOGGER.info("Order Product Json Array list size: {}", jsonArray.length());
         JSONObject jsonObject;
         List<OrderProduct> orderProductList = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
